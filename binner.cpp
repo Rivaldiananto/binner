@@ -1,33 +1,43 @@
 #include <iostream>
-#include <bitset>
 #include <sstream>
 #include <string>
 #include <random>
 #include <ctime>
+#include <vector>
+#include <iomanip>
 
 // Fungsi untuk mengonversi string biner ke hexadecimal
-std::string binToHex(const std::string &binStr) {
+std::string binToHex(const std::string& binStr) {
     std::stringstream ss;
-    unsigned long long num = std::bitset<66>(binStr).to_ullong();
-    ss << std::hex << std::uppercase << num;
+    ss << std::hex << std::setfill('0');
+    for (size_t i = 0; i < binStr.size(); i += 4) {
+        int nibble = std::stoi(binStr.substr(i, 4), nullptr, 2);
+        ss << nibble;
+    }
     return ss.str();
 }
 
-// Fungsi untuk menghasilkan string biner acak 6-bit
-std::string generateRandomBinaryPattern() {
-    static std::mt19937 rng(time(nullptr)); // generator nomor acak berdasarkan waktu
-    std::uniform_int_distribution<int> dist(0, 63); // distribusi untuk angka 0-63
-    int number = dist(rng);
-    std::bitset<6> bset(number);
-    return bset.to_string();
+// Fungsi untuk menghasilkan semua pola biner 6-bit dari 0 hingga 63
+std::vector<std::string> generateAllBinaryPatterns() {
+    std::vector<std::string> patterns;
+    for (int i = 0; i < 64; ++i) {
+        std::bitset<6> bset(i);
+        patterns.push_back(bset.to_string());
+    }
+    return patterns;
 }
 
 int main() {
+    auto patterns = generateAllBinaryPatterns();
     std::string combinedBinPattern;
 
-    // Menghasilkan dan menggabungkan 11 pola biner 6-bit
+    // Membuat generator nomor acak
+    std::mt19937 rng(time(nullptr));
+    std::shuffle(patterns.begin(), patterns.end(), rng);
+
+    // Memilih 11 pola acak
     for (int i = 0; i < 11; ++i) {
-        combinedBinPattern += generateRandomBinaryPattern();
+        combinedBinPattern += patterns[i];
     }
 
     // Mengonversi ke hexadecimal
