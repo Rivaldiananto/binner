@@ -14,9 +14,11 @@ std::string binToHex(const std::string& binStr) {
     ss << std::hex << std::setfill('0');
     for (size_t i = 0; i < binStr.size(); i += 4) {
         int nibble = std::stoi(binStr.substr(i, 4), nullptr, 2);
-        ss << nibble;
+        ss << std::setw(1) << nibble;
     }
-    return ss.str();
+    // Pastikan output selalu memiliki panjang 64 karakter
+    std::string result = ss.str();
+    return std::string(64 - result.length(), '0') + result;
 }
 
 // Fungsi untuk menghasilkan semua pola biner 6-bit dari 0 hingga 63
