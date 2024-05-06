@@ -5,6 +5,8 @@
 #include <ctime>
 #include <vector>
 #include <iomanip>
+#include <bitset> // Untuk std::bitset
+#include <algorithm> // Untuk std::shuffle
 
 // Fungsi untuk mengonversi string biner ke hexadecimal
 std::string binToHex(const std::string& binStr) {
