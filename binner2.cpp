@@ -7,17 +7,16 @@
 #include <algorithm>
 #include <chrono>
 #include <gmpxx.h>
-#include <omp.h> // Include untuk OpenMP
+#include <omp.h>
+#include <fstream> // Include untuk output file
 
-// Fungsi untuk mengonversi string biner ke hexadecimal
 std::string binToHex(const std::string& binStr) {
-    mpz_class mpz_bin(binStr, 2);  // Inisialisasi mpz_class dengan string biner
+    mpz_class mpz_bin(binStr, 2);
     std::stringstream ss;
-    ss << std::hex << mpz_bin;  // Mengonversi bilangan biner ke heksadesimal
+    ss << std::hex << mpz_bin;
     return ss.str();
 }
 
-// Fungsi untuk menghasilkan semua pola biner 6-bit dari 0 hingga 63
 std::vector<std::string> generateAllBinaryPatterns() {
     std::vector<std::string> patterns;
     for (int i = 0; i < 64; ++i) {
@@ -42,16 +41,15 @@ int main(int argc, char* argv[]) {
     auto patterns = generateAllBinaryPatterns();
     std::vector<bool> v(64, false);
     std::fill(v.begin(), v.begin() + numPatterns, true);
-    std::sort(patterns.begin(), patterns.end());
 
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<std::string> hexResults;  // Vektor untuk menyimpan hasil hex
+    std::vector<std::string> hexResults;
 
     #pragma omp parallel
     {
-        std::vector<std::string> localHexResults;  // Vektor lokal untuk setiap thread
+        std::vector<std::string> localHexResults;
 
-        #pragma omp for schedule(dynamic) nowait
+        #pragma omp for nowait
         for (size_t idx = 0; idx < patterns.size(); ++idx) {
             if (v[idx]) {
                 localHexResults.push_back(binToHex(patterns[idx]));
@@ -66,7 +64,16 @@ int main(int argc, char* argv[]) {
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
+
+    // Menyimpan hasil ke dalam file
+    std::ofstream outFile("output_hex_results.txt");
+    for (const auto& hex : hexResults) {
+        outFile << hex << std::endl;
+    }
+    outFile.close(); // Menutup file
+
     std::cout << "[+] Total patterns converted: " << hexResults.size() << " in " << elapsed.count() << " seconds." << std::endl;
+    std::cout << "[+] Results saved to 'output_hex_results.txt'." << std::endl;
 
     return 0;
 }
