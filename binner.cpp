@@ -5,8 +5,18 @@
 #include <iomanip>
 #include <bitset>
 #include <algorithm>
-#include <chrono>  // For measuring time
+#include <chrono>
 #include <cstdlib>
+#include <cstdio>  // For using std::printf and std::system
+
+// Function to clear screen
+void clearScreen() {
+#ifdef _WIN32
+    std::system("cls");
+#else
+    std::system("clear");
+#endif
+}
 
 // Fungsi untuk mengonversi string biner ke hexadecimal
 std::string binToHex(const std::string& binStr) {
@@ -63,12 +73,13 @@ int main(int argc, char* argv[]) {
         auto now = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = now - last_update;
 
-        if (elapsed.count() >= 1.0) { // Update the output every second
+        if (elapsed.count() >= 1.0) {
+            clearScreen();
             std::cout << "[+] Binner : " << combinedBinPattern << std::endl;
             std::cout << "[+] Hex : " << hexOutput << std::endl;
             std::cout << "[+] Jumlah output/detik : " << count << " kombinasi/detik" << std::endl;
             last_update = now;
-            count = 0;
+            count = 0;  // Reset count after updating
         }
     } while (std::prev_permutation(v.begin(), v.end()));
 
