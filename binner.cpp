@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <bitset>
 #include <algorithm>
-#include <cstdlib>  // Untuk std::atoi
+#include <cstdlib>
 
 // Fungsi untuk mengonversi string biner ke hexadecimal
 std::string binToHex(const std::string& binStr) {
@@ -43,21 +43,20 @@ int main(int argc, char* argv[]) {
     }
 
     auto patterns = generateAllBinaryPatterns();
-    std::string combinedBinPattern;
+    std::vector<bool> v(64, false);
+    std::fill(v.begin(), v.begin() + numPatterns, true);
+    std::sort(patterns.begin(), patterns.end());  // Memastikan dalam urutan
 
-    // Membuat generator nomor acak
-    std::mt19937 rng(time(nullptr));
-    std::shuffle(patterns.begin(), patterns.end(), rng);
-
-    // Memilih n pola acak, sesuai dengan input pengguna
-    for (int i = 0; i < numPatterns; ++i) {
-        combinedBinPattern += patterns[i];
-    }
-
-    // Mengonversi ke hexadecimal
-    std::string hexOutput = binToHex(combinedBinPattern);
-    std::cout << "String biner yang dihasilkan: " << combinedBinPattern << std::endl;
-    std::cout << "Hasil konversi ke hexadecimal: " << hexOutput << std::endl;
+    do {
+        std::string combinedBinPattern;
+        for (int i = 0; i < 64; ++i) {
+            if (v[i]) {
+                combinedBinPattern += patterns[i];
+            }
+        }
+        std::string hexOutput = binToHex(combinedBinPattern);
+        std::cout << "Kombinasi: " << combinedBinPattern << " -> Hex: " << hexOutput << std::endl;
+    } while (std::prev_permutation(v.begin(), v.end()));
 
     return 0;
 }
