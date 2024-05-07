@@ -50,8 +50,6 @@ int main(int argc, char* argv[]) {
     auto last_update = start;
     int count = 0;
 
-    std::cout << "[+] Binner:\n[+] Hex:\n";  // Print header only once
-
     do {
         std::string combinedBinPattern;
         for (int i = 0; i < 64; ++i) {
@@ -60,6 +58,8 @@ int main(int argc, char* argv[]) {
             }
         }
         std::string hexOutput = binToHex(combinedBinPattern);
+        std::cout << "[+] Binner: " << combinedBinPattern << std::endl;  // Print binary pattern
+        std::cout << "[+] Hex: " << hexOutput << std::endl;  // Print hex output
         count++;
 
         auto now = std::chrono::high_resolution_clock::now();
