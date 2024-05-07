@@ -6,16 +6,13 @@
 #include <bitset>
 #include <algorithm>
 #include <chrono>
-#include <cstdlib>
+#include <gmpxx.h>
 
 // Fungsi untuk mengonversi string biner ke hexadecimal
 std::string binToHex(const std::string& binStr) {
+    mpz_class mpz_bin(binStr, 2);  // Inisialisasi mpz_class dengan string biner
     std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-    for (size_t i = 0; i < binStr.size(); i += 4) {
-        int nibble = std::stoi(binStr.substr(i, 4), nullptr, 2);
-        ss << nibble;
-    }
+    ss << std::hex << mpz_bin;  // Mengonversi bilangan biner ke heksadesimal
     return ss.str();
 }
 
@@ -50,6 +47,8 @@ int main(int argc, char* argv[]) {
     auto last_update = start;
     int count = 0;
 
+    std::cout << "[+] Binner:\n[+] Hex:\n";  // Print header only once
+
     do {
         std::string combinedBinPattern;
         for (int i = 0; i < 64; ++i) {
@@ -58,8 +57,6 @@ int main(int argc, char* argv[]) {
             }
         }
         std::string hexOutput = binToHex(combinedBinPattern);
-        std::cout << "[+] Binner: " << combinedBinPattern << std::endl;  // Print binary pattern
-        std::cout << "[+] Hex: " << hexOutput << std::endl;  // Print hex output
         count++;
 
         auto now = std::chrono::high_resolution_clock::now();
