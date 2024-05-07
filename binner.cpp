@@ -1,12 +1,11 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <random>
-#include <ctime>
 #include <vector>
 #include <iomanip>
 #include <bitset>
 #include <algorithm>
+#include <chrono>  // For measuring time
 #include <cstdlib>
 
 // Fungsi untuk mengonversi string biner ke hexadecimal
@@ -45,7 +44,11 @@ int main(int argc, char* argv[]) {
     auto patterns = generateAllBinaryPatterns();
     std::vector<bool> v(64, false);
     std::fill(v.begin(), v.begin() + numPatterns, true);
-    std::sort(patterns.begin(), patterns.end());  // Memastikan dalam urutan
+    std::sort(patterns.begin(), patterns.end());
+
+    // Menggunakan chrono untuk menghitung waktu
+    auto start = std::chrono::high_resolution_clock::now();
+    int count = 0;
 
     do {
         std::string combinedBinPattern;
@@ -55,8 +58,16 @@ int main(int argc, char* argv[]) {
             }
         }
         std::string hexOutput = binToHex(combinedBinPattern);
-        std::cout << "Kombinasi: " << combinedBinPattern << " -> Hex: " << hexOutput << std::endl;
+        count++;
     } while (std::prev_permutation(v.begin(), v.end()));
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+
+    std::cout << "Binner completed. Processed " << count << " combinations.\n";
+    std::cout << "Hex Output: " << binToHex(patterns.back()) << "\n";
+    std::cout << "Time elapsed (seconds): " << elapsed.count() << " s\n";
+    std::cout << "Combinations per second: " << count / elapsed.count() << "\n";
 
     return 0;
 }
