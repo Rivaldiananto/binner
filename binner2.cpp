@@ -45,35 +45,28 @@ int main(int argc, char* argv[]) {
     std::sort(patterns.begin(), patterns.end());
 
     auto start = std::chrono::high_resolution_clock::now();
-    auto last_update = start;
-    int count = 0;
+    std::vector<std::string> hexResults;  // Vektor untuk menyimpan hasil hex
 
-    std::cout << "[+] Binner:\n[+] Hex:\n";  // Print header only once
-
-    // Paralelisasi proses generasi dan konversi pattern
     #pragma omp parallel
     {
-        std::vector<std::string> localPatterns;  // Vektor lokal untuk setiap thread
+        std::vector<std::string> localHexResults;  // Vektor lokal untuk setiap thread
 
-        #pragma omp for schedule(dynamic) nowait  // Distribusi beban kerja secara dinamis
+        #pragma omp for schedule(dynamic) nowait
         for (size_t idx = 0; idx < patterns.size(); ++idx) {
             if (v[idx]) {
-                localPatterns.push_back(patterns[idx]);
+                localHexResults.push_back(binToHex(patterns[idx]));
             }
         }
 
         #pragma omp critical
         {
-            for (const auto& pattern : localPatterns) {
-                std::string hexOutput = binToHex(pattern);
-                count++;
-            }
+            hexResults.insert(hexResults.end(), localHexResults.begin(), localHexResults.end());
         }
     }
 
-    auto now = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = now - last_update;
-    std::printf("[+] Total patterns converted: %d in %.2f seconds.\n", count, elapsed.count());
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "[+] Total patterns converted: " << hexResults.size() << " in " << elapsed.count() << " seconds." << std::endl;
 
     return 0;
 }
