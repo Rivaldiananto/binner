@@ -50,9 +50,7 @@ int main(int argc, char* argv[]) {
     auto last_update = start;
     int count = 0;
 
-    // Inisialisasi pesan awal
-    std::cout << "[+] Binner: " << std::endl;
-    std::cout << "[+] Hex: " << std::endl;
+    std::cout << "[+] Binner:\n[+] Hex:\n";  // Print header only once
 
     do {
         std::string combinedBinPattern;
@@ -67,12 +65,15 @@ int main(int argc, char* argv[]) {
         auto now = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = now - last_update;
 
-        if (elapsed.count() >= 1.0) { // Perbarui setiap detik
-            std::cout << "[+] Jumlah output/detik: " << count << " kombinasi/detik" << std::endl;
+        if (elapsed.count() >= 1.0) { // Update the output every second
+            std::printf("\r[+] Jumlah output/detik: %d kombinasi/detik", count);  // Update on the same line
+            std::fflush(stdout);  // Flush the output buffer
             last_update = now;
-            count = 0;  // Reset jumlah setelah update
+            count = 0;  // Reset count after updating
         }
     } while (std::prev_permutation(v.begin(), v.end()));
+
+    std::cout << std::endl;  // Print a newline at the end of the program
 
     return 0;
 }
