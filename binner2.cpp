@@ -8,30 +8,21 @@
 #include <chrono>
 #include <gmpxx.h>
 #include <fstream>
-#include <omp.h> // Include OpenMP library
+#include <omp.h>
 
-// Fungsi untuk mengonversi string biner ke hexadecimal dengan OpenMP
 std::string binToHex(const std::string& binStr) {
-    mpz_class mpz_bin;
-    #pragma omp parallel // Menggunakan OpenMP untuk paralelisasi
-    {
-        #pragma omp single nowait // Tugas ini tidak perlu menunggu
-        {
-            mpz_bin = mpz_class(binStr, 2);  // Inisialisasi mpz_class dengan string biner
-        }
-    }
-
+    mpz_class mpz_bin(binStr, 2);
     std::stringstream ss;
-    ss << std::hex << mpz_bin;  // Mengonversi bilangan biner ke heksadesimal
+    ss << std::hex << mpz_bin;
     return ss.str();
 }
 
-// Fungsi untuk menghasilkan semua pola biner 6-bit dari 0 hingga 63
 std::vector<std::string> generateAllBinaryPatterns() {
-    std::vector<std::string> patterns;
+    std::vector<std::string> patterns(64);
+    #pragma omp parallel for
     for (int i = 0; i < 64; ++i) {
         std::bitset<6> bset(i);
-        patterns.push_back(bset.to_string());
+        patterns[i] = bset.to_string();
     }
     return patterns;
 }
@@ -51,40 +42,40 @@ int main(int argc, char* argv[]) {
     auto patterns = generateAllBinaryPatterns();
     std::vector<bool> v(64, false);
     std::fill(v.begin(), v.begin() + numPatterns, true);
-    std::sort(patterns.begin(), patterns.end());
 
-    std::ofstream outfile("output.txt"); // Membuka file untuk menulis hasil
+    std::ofstream outfile("output.txt");
 
     auto start = std::chrono::high_resolution_clock::now();
-    auto last_update = start;
     int count = 0;
+    std::cout << "[+] Binner:\n[+] Hex:\n";
 
-    std::cout << "[+] Binner:\n[+] Hex:\n";  // Print header only once
+    #pragma omp parallel
+    {
+        std::vector<std::string> local_outputs;
+        #pragma omp for nowait
+        do {
+            std::string combinedBinPattern;
+            for (int i = 0; i < 64; ++i) {
+                if (v[i]) {
+                    combinedBinPattern += patterns[i];
+                }
+            }
+            local_outputs.push_back(binToHex(combinedBinPattern));
+        } while (std::prev_permutation(v.begin(), v.end()));
 
-    do {
-        std::string combinedBinPattern;
-        for (int i = 0; i < 64; ++i) {
-            if (v[i]) {
-                combinedBinPattern += patterns[i];
+        #pragma omp critical
+        {
+            for (const auto& hexOutput : local_outputs) {
+                outfile << hexOutput << std::endl;
+                count++;
             }
         }
-        std::string hexOutput = binToHex(combinedBinPattern);
-        outfile << hexOutput << std::endl; // Menulis ke file
-        count++;
+    }
 
-        auto now = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = now - last_update;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "[+] Finished in: " << elapsed.count() << " seconds" << std::endl;
 
-        if (elapsed.count() >= 1.0) { // Update the output every second
-            std::printf("\r[+] Jumlah output/detik: %d kombinasi/detik", count);  // Update on the same line
-            std::fflush(stdout);  // Flush the output buffer
-            last_update = now;
-            count = 0;  // Reset count after updating
-        }
-    } while (std::prev_permutation(v.begin(), v.end()));
-
-    std::cout << std::endl;  // Print a newline at the end of the program
-    outfile.close(); // Tutup file setelah semua operasi selesai
-
+    outfile.close();
     return 0;
 }
