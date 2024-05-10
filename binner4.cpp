@@ -4,6 +4,7 @@
 #include <string>
 #include <gmp.h>
 #include <chrono>
+#include <cstdlib>
 
 // Fungsi untuk mengonversi integer ke string biner 6-bit
 std::string intToBinary6(int num) {
@@ -20,8 +21,18 @@ std::vector<std::string> generateAllCombinations() {
     return allCombinations;
 }
 
-int main() {
-    const int numPatterns = 11; // Jumlah pola yang ingin digunakan
+int main(int argc, char** argv) {
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <number_of_patterns>" << std::endl;
+        return 1;
+    }
+
+    int numPatterns = std::atoi(argv[1]);
+    if (numPatterns <= 0) {
+        std::cerr << "Number of patterns must be positive." << std::endl;
+        return 1;
+    }
+
     std::vector<std::string> allCombinations = generateAllCombinations();
 
     mpz_t totalCombinations;
