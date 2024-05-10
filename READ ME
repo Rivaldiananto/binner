@@ -1,5 +1,9 @@
-binner.cpp , binner2.cpp , binner3.cpp adalah satu sama aja, tapi hitungan perdeeetiknya lebih cepat sesuai urutan, 1,2,3 adalah bin2hex
+KODE INI DIBUAT OLEH RIVALDIANANTO
+Bisa untuk pentingan satoshi quest atau pemecah bitcoin address
 
+#NOTE kode ini hanya sebagian untuk menggunakannya integrasikan ddengan keyhunt2 yang ada diprofil saya
+
+binner.cpp , binner2.cpp , binner3.cpp adalah satu sama aja, tapi hitungan perdeeetiknya lebih cepat sesuai urutan, 1,2,3 adalah bin2hex
 
 untuk kompilasi program gunakan perintah 
 
