@@ -1,0 +1,18 @@
+binner.cpp , binner2.cpp , binner3.cpp adalah satu sama aja, tapi hitungan perdeeetiknya lebih cepat sesuai urutan, 1,2,3 adalah bin2hex
+
+
+untuk kompilasi program gunakan perintah 
+
+g++ -fopenmp -o your_program your_program.cpp -lgmp -lgmpxx -O2
+
+-01 lambat
+-02 sedang
+-03 cepat
+
+perhatikan kecepatan dan peneggunaan memori pada ram
+
+untuk binner4.cpp bin2array dia string binner ke array biner 
+
+untuk kompilasi nya
+
+g++ -o your_program your_program.cpp -lgmp
