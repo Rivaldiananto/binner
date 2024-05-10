@@ -1,81 +1,85 @@
 #include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <iomanip>
 #include <bitset>
-#include <algorithm>
+#include <vector>
+#include <string>
+#include <gmp.h>
 #include <chrono>
-#include <gmpxx.h>
-#include <fstream>
-#include <omp.h>
+#include <cstdlib>
+#include <sstream>
+#include <iomanip>
 
-std::string binToHex(const std::string& binStr) {
-    mpz_class mpz_bin(binStr, 2);
+// Fungsi untuk mengonversi integer ke string biner 6-bit
+std::string intToBinary6(int num) {
+    std::bitset<6> bin(num);
+    return bin.to_string();
+}
+
+// Fungsi untuk menghasilkan semua kombinasi biner 6-bit
+std::vector<std::string> generateAllCombinations() {
+    std::vector<std::string> allCombinations;
+    for (int i = 0; i < 64; ++i) {
+        allCombinations.push_back(intToBinary6(i));
+    }
+    return allCombinations;
+}
+
+// Fungsi konversi dari biner ke heksadesimal
+std::string binaryToHex(const std::string &binaryStr) {
     std::stringstream ss;
-    ss << std::hex << mpz_bin;
+    ss << std::hex << std::stoi(binaryStr, nullptr, 2);
     return ss.str();
 }
 
-std::vector<std::string> generateAllBinaryPatterns() {
-    std::vector<std::string> patterns(64);
-    #pragma omp parallel for
-    for (int i = 0; i < 64; ++i) {
-        std::bitset<6> bset(i);
-        patterns[i] = bset.to_string();
-    }
-    return patterns;
-}
-
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
     if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <number of patterns>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <number_of_patterns>" << std::endl;
         return 1;
     }
 
     int numPatterns = std::atoi(argv[1]);
-    if (numPatterns <= 0 || numPatterns > 64) {
-        std::cerr << "Invalid number of patterns. Please specify a number between 1 and 64." << std::endl;
+    if (numPatterns <= 0) {
+        std::cerr << "Number of patterns must be positive." << std::endl;
         return 1;
     }
 
-    auto patterns = generateAllBinaryPatterns();
-    std::vector<bool> v(64, false);
-    std::fill(v.begin(), v.begin() + numPatterns, true);
+    std::vector<std::string> allCombinations = generateAllCombinations();
 
-    std::ofstream outfile("output.txt");
+    mpz_t totalCombinations;
+    mpz_init(totalCombinations);
+    mpz_ui_pow_ui(totalCombinations, 64, numPatterns);  // 64^numPatterns
 
-    auto start = std::chrono::high_resolution_clock::now();
-    int count = 0;
-    std::cout << "[+] Binner:\n[+] Hex:\n";
+    gmp_printf("Total kombinasi yang mungkin: %Zd\\n", totalCombinations);
 
-    #pragma omp parallel
-    {
-        std::vector<std::string> local_outputs;
-        #pragma omp for nowait
-        do {
-            std::string combinedBinPattern;
-            for (int i = 0; i < 64; ++i) {
-                if (v[i]) {
-                    combinedBinPattern += patterns[i];
-                }
-            }
-            local_outputs.push_back(binToHex(combinedBinPattern));
-        } while (std::prev_permutation(v.begin(), v.end()));
+    // Start time measurement
+    auto start = std::chrono::steady_clock::now();
 
-        #pragma omp critical
-        {
-            for (const auto& hexOutput : local_outputs) {
-                outfile << hexOutput << std::endl;
-                count++;
-            }
+    mpz_t i;
+    mpz_init_set_ui(i, 0);
+    unsigned long count = 0;
+    while(mpz_cmp(i, totalCombinations) < 0) {  // Iterate through all combinations
+        unsigned long long combination = mpz_get_ui(i);
+        std::string result;
+        for (int j = 0; j < numPatterns; ++j) {
+            int index = combination % 64;
+            result += allCombinations[index];
+            combination /= 64;
         }
+        std::string hexResult = binaryToHex(result);  // Konversi ke heksadesimal
+        // Tampilkan atau proses hasil hex
+        std::cout << hexResult << std::endl;
+        mpz_add_ui(i, i, 1);
+        count++;
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = end - start;
-    std::cout << "[+] Finished in: " << elapsed.count() << " seconds" << std::endl;
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    double seconds = elapsed_seconds.count();
+    double rate = count / seconds;
 
-    outfile.close();
+    std::cout << "Total waktu eksekusi: " << seconds << " detik\\n";
+    std::cout << "Operasi per detik: " << rate << std::endl;
+
+    mpz_clear(totalCombinations);
+    mpz_clear(i);
     return 0;
 }
