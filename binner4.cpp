@@ -21,7 +21,7 @@ std::vector<std::string> generateAllCombinations() {
 }
 
 int main() {
-    const int numPatterns = 11;
+    const int numPatterns = 11; // Jumlah pola yang ingin digunakan
     std::vector<std::string> allCombinations = generateAllCombinations();
 
     mpz_t totalCombinations;
@@ -30,12 +30,13 @@ int main() {
 
     gmp_printf("Total kombinasi yang mungkin: %Zd\n", totalCombinations);
 
-    // Measure time
+    // Start time measurement
     auto start = std::chrono::steady_clock::now();
 
     mpz_t i;
     mpz_init_set_ui(i, 0);
-    while(mpz_cmp(i, totalCombinations) < 0) {  // Loop through all combinations
+    unsigned long count = 0;
+    while(mpz_cmp(i, totalCombinations) < 0) {  // Iterate through all combinations
         unsigned long long combination = mpz_get_ui(i);
         std::string result;
         for (int j = 0; j < numPatterns; ++j) {
@@ -45,11 +46,16 @@ int main() {
         }
         // Optionally process the result here
         mpz_add_ui(i, i, 1);
+        count++;
     }
 
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "Total waktu eksekusi: " << elapsed_seconds.count() << " detik\n";
+    double seconds = elapsed_seconds.count();
+    double rate = count / seconds;
+
+    std::cout << "Total waktu eksekusi: " << seconds << " detik\n";
+    std::cout << "Operasi per detik: " << rate << std::endl;
 
     mpz_clear(totalCombinations);
     mpz_clear(i);
