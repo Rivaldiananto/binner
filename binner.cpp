@@ -18,6 +18,11 @@ std::vector<std::string> generateAllCombinations() {
     for (int i = 0; i < 64; ++i) {
         allCombinations.push_back(intToBinary6(i));
     }
+    std::ofstream outfile("output.txt");
+    for (const std::string& combination : allCombinations) {
+        outfile << combination << std::endl;
+    }
+    outfile.close();
     return allCombinations;
 }
 
