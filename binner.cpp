@@ -2,6 +2,7 @@
 #include <bitset>
 #include <vector>
 #include <string>
+#include <fstream>  // Library untuk output file
 #include <gmp.h>
 #include <chrono>
 #include <cstdlib>
@@ -34,6 +35,7 @@ int main(int argc, char** argv) {
     }
 
     std::vector<std::string> allCombinations = generateAllCombinations();
+    std::ofstream outFile("output.txt");  // Membuka file untuk menulis
 
     mpz_t totalCombinations;
     mpz_init(totalCombinations);
@@ -47,7 +49,7 @@ int main(int argc, char** argv) {
     mpz_t i;
     mpz_init_set_ui(i, 0);
     unsigned long count = 0;
-    while(mpz_cmp(i, totalCombinations) < 0) {  // Iterate through all combinations
+    while(mpz_cmp(i, totalCombinations) < 0) {
         unsigned long long combination = mpz_get_ui(i);
         std::string result;
         for (int j = 0; j < numPatterns; ++j) {
@@ -60,7 +62,12 @@ int main(int argc, char** argv) {
         for (size_t k = 0; k < result.length(); ++k) {
             binaryArray[k] = (result[k] == '1');
         }
-        // Optionally, add further processing of binaryArray here
+
+        // Menulis ke file
+        for (auto bit : binaryArray) {
+            outFile << bit;
+        }
+        outFile << std::endl;  // Baris baru untuk setiap kombinasi
 
         mpz_add_ui(i, i, 1);
         count++;
@@ -73,6 +80,9 @@ int main(int argc, char** argv) {
 
     std::cout << "Total waktu eksekusi: " << seconds << " detik\\n";
     std::cout << "Kecepatan proses: " << rate << " kombinasi/detik\\n";
+
+    // Menutup file
+    outFile.close();
 
     mpz_clear(totalCombinations);
     mpz_clear(i);
