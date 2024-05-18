@@ -1,6 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include <vector>
+#include <fstream>
 #include <string>
 #include <gmp.h>
 #include <chrono>
@@ -18,11 +19,6 @@ std::vector<std::string> generateAllCombinations() {
     for (int i = 0; i < 64; ++i) {
         allCombinations.push_back(intToBinary6(i));
     }
-    std::ofstream outfile("output.txt");
-    for (const std::string& combination : allCombinations) {
-        outfile << combination << std::endl;
-    }
-    outfile.close();
     return allCombinations;
 }
 
@@ -33,6 +29,12 @@ std::vector<int> binaryStringToArray(const std::string& binaryString) {
     for (char bit : binaryString) {
         binaryArray.push_back(bit == '1' ? 1 : 0);
     }
+    std::ofstream outfile("binary_output.txt");
+    for (int bit : binaryArray) {
+        outfile << bit;
+    }
+    outfile << std::endl;
+    outfile.close();
     return binaryArray;
 }
 int main(int argc, char** argv) {
