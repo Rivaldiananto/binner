@@ -1,7 +1,6 @@
 #include <iostream>
 #include <bitset>
 #include <vector>
-#include <fstream>
 #include <string>
 #include <gmp.h>
 #include <chrono>
@@ -22,21 +21,6 @@ std::vector<std::string> generateAllCombinations() {
     return allCombinations;
 }
 
-
-// Fungsi untuk mengonversi string biner ke array biner
-std::vector<int> binaryStringToArray(const std::string& binaryString) {
-    std::vector<int> binaryArray;
-    for (char bit : binaryString) {
-        binaryArray.push_back(bit == '1' ? 1 : 0);
-    }
-    std::ofstream outfile("binary_output.txt");
-    for (int bit : binaryArray) {
-        outfile << bit;
-    }
-    outfile << std::endl;
-    outfile.close();
-    return binaryArray;
-}
 int main(int argc, char** argv) {
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <number_of_patterns>" << std::endl;
@@ -55,7 +39,7 @@ int main(int argc, char** argv) {
     mpz_init(totalCombinations);
     mpz_ui_pow_ui(totalCombinations, 64, numPatterns);  // 64^numPatterns
 
-    gmp_printf("Total kombinasi yang mungkin: %Zd\n", totalCombinations);
+    gmp_printf("Total kombinasi yang mungkin: %Zd\\n", totalCombinations);
 
     // Start time measurement
     auto start = std::chrono::steady_clock::now();
@@ -71,7 +55,13 @@ int main(int argc, char** argv) {
             result += allCombinations[index];
             combination /= 64;
         }
-        // Optionally process the result here
+        // Convert binary string to binary array and process it
+        std::vector<bool> binaryArray(result.length());
+        for (size_t k = 0; k < result.length(); ++k) {
+            binaryArray[k] = (result[k] == '1');
+        }
+        // Optionally, add further processing of binaryArray here
+
         mpz_add_ui(i, i, 1);
         count++;
     }
@@ -81,10 +71,11 @@ int main(int argc, char** argv) {
     double seconds = elapsed_seconds.count();
     double rate = count / seconds;
 
-    std::cout << "Total waktu eksekusi: " << seconds << " detik\n";
-    std::cout << "Operasi per detik: " << rate << std::endl;
+    std::cout << "Total waktu eksekusi: " << seconds << " detik\\n";
+    std::cout << "Kecepatan proses: " << rate << " kombinasi/detik\\n";
 
     mpz_clear(totalCombinations);
     mpz_clear(i);
+
     return 0;
 }
