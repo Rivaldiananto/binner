@@ -25,9 +25,14 @@ std::vector<std::string> generateAllCombinations() {
 
 // Fungsi konversi dari biner ke heksadesimal
 std::string binaryToHex(const std::string &binaryStr) {
-    std::stringstream ss;
-    ss << std::hex << std::stoi(binaryStr, nullptr, 2);
-    return ss.str();
+    mpz_t num;
+    mpz_init(num);
+    mpz_set_str(num, binaryStr.c_str(), 2);  // Set num to the value of binaryStr interpreted as a binary number
+    char* hex_cstr = mpz_get_str(NULL, 16, num);  // Convert num to a hexadecimal string
+    std::string hex_str(hex_cstr);
+    free(hex_cstr);
+    mpz_clear(num);
+    return hex_str;
 }
 
 int main(int argc, char** argv) {
